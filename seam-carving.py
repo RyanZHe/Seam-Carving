@@ -51,7 +51,7 @@ def minimum_seam(img):
                 min_energy = M[i - 1, idx + j - 1]
 
             M[i, j] += min_energy
-            
+
     return M, backtrack
 
 def carve_column(img):
@@ -59,7 +59,7 @@ def carve_column(img):
 
     M, backtrack = minimum_seam(img)
 
-    mask = np.one((r, c), dtype = np.nool)
+    mask = np.ones((r, c), dtype = np.bool)
 
     j = np.argmin(M[-1])
 
@@ -72,3 +72,24 @@ def carve_column(img):
     img = img[mask].reshape((r, c - 1, 3))
 
     return img
+
+def crop(img, scale):
+    r, c, _ = img.shape
+    new_c = int(scale * c)
+
+    for i in trange(c - new_c):
+        img = carve_column(img)
+
+    return img
+
+def main():
+    scale = float(sys.argv[1])
+    in_filename = sys.argv[2]
+    out_filename = sys.argv[3]
+
+    img = imread(in_filename)
+    out = crop(img, scale)
+    imwrite(out_filename, out)
+
+if __name__ == "__main__":
+    main()
